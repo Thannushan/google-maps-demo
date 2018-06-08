@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<style type="text/css">
+			#mapDiv {height: 600px; width: 600px}
+		</style>
+		
+		<!--Including google maps api have to add the &libraries=places for autocomplete feature-->
+		<script type="text/javascript" 
+		src="https://maps.googleapis.com/maps/api/js?key=AIzaSyA7Vur6kSZyKEmgplaSGYirRuU3opwwvcM&libraries=places">
+		</script>
+		
+		<!--This script tag is where you write the google maps api code
+			We created a object literal to store mapOptions
+			Created a Map object and passed in the div where 
+			the map will display and the mapOptions in the constructor
+		 -->
+
+		<script type="text/javascript">
+		var map;	
+		function initialize(){
+				var mapOptions = {
+					center: new google.maps.LatLng(43.649671,-79.3844237),
+					zoom: 16,
+					//These are default UI that we can enable and disable based on how we want the user to interact with map
+					disableDefaultUI: true,
+
+// 					zoomControl: true,
+// 					panControl :true,
+// 					mapTypeControl: true,
+// 					scaleControl: true,
+// 					streetViewControl: true,
+// 					overviewMapControl:true
+				};
+				
+				//Here we create the iconic Google marker
+// 				var centerMarker = new google.maps.Marker({
+// 					position: new google.maps.LatLng(43.649671,-79.3844237),
+// 					map: map,
+// 					title: "We know this place"
+// 				});
+				
+				var startInput = document.getElementById("start");
+				var endInput = document.getElementById("stop");
+				
+				//This will bind to input fields and try to autocomplete based on the location you are typing
+				var startAuto = new google.maps.places.Autocomplete(startInput);
+				var endAuto = new google.maps.places.Autocomplete(endInput);
+			
+				
+				<!--This is where the function we wrote runs-->
+				map = new google.maps.Map(document.getElementById("mapDiv"), mapOptions);
+				//We set the marker by calling its setMap method and passing the map object into it
+				//centerMarker.setMap(map);
+			}
+			
+			function calcRoute(){
+				//This finds the direction based on the start and end point and other options you may want to consider like driving/walking, avoid tolls/highways
+				var directionsService = new google.maps.DirectionsService();
+				
+				//This renders the result on the map 
+				var directionsDisplay = new google.maps.DirectionsRenderer();
+				
+				//This has to be set on the map for it to actually show up on the map
+				directionsDisplay.setMap(map);
+				
+				var start = document.getElementById("start").value;
+				var end = document.getElementById("stop").value;
+
+				var request = {
+						origin: start,
+						destination: end,
+						travelMode: google.maps.TravelMode.DRIVING,
+						avoidHighways: false,
+						avoidTolls: true
+						
+				};
+				
+			
+				directionsService.route(request, function(result,status){
+					if (status == google.maps.DirectionsStatus.OK){
+						directionsDisplay.setDirections(result);
+
+					}else{
+						alert("Could not find");
+					}
+				});
+			}
+			
+		
+			google.maps.event.addDomListener(window, "load",initialize);
+		</script>
+	</head>
+	<body>
+		<!--These buttons showcase changing the map baseoptions programatically-->
+
+		<div id="mapDiv">	<!--This is where the map will live-->		
+		</div>
+		<div>
+			<form >
+				Start: <input type="text" id="start"><br/>
+				Destination:<input type="text" id="stop"><br/>
+				Avoid:
+				<input type="checkbox" name="avoid" id="toll">Toll
+				<input type="checkbox" name="avoid" id="highway">Highway<br/>
+				<input type="button" value="Search" onclick="calcRoute()">
+				
+			</form>
+		</div>
+	</body>
+
+</html>
